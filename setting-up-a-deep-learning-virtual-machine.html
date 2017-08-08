@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Elizabeth's Portfolio, Experiments in Data Science">
+
+
+        <title>Setting up a Deep Learning Virtual Machine // Elizabeth's Portfolio // Experiments in Data Science</title>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="./theme/css/pure.css">
+    <link rel="stylesheet" href="./theme/css/pygments.css">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
+</head>
+
+<body>
+    <div class="pure-g-r" id="layout">
+        <div class="sidebar pure-u">
+            <div class="cover-img" style="background-image: url('https://static.pexels.com/photos/205324/pexels-photo-205324.jpeg')">
+                <div class="cover-body">
+                    <header class="header">
+                        <hgroup>
+                            <h1 class="brand-main"><a href=".">Elizabeth's Portfolio</a></h1>
+                            <p class="tagline">Experiments in Data Science</p>
+                                <p class="links"><a href="/category/projects.html">View Work</a></p>
+                                <p class="social">
+                                    <a href="https://github.com/erych">
+                                        <i class="fa fa-github fa-3x"></i>
+                                    </a>
+                                    <a href="https://www.linkedin.com/in/elizabeth-rychlinski-54a50a49/">
+                                        <i class="fa fa-linkedin-square fa-3x"></i>
+                                    </a>
+                                </p>
+                        </hgroup>
+                    </header>
+                </div>
+            </div>
+        </div>
+    <div class="pure-u">
+        <div class="content">
+            <section class="post">
+                <header class="post-header">
+                    <h1>Setting up a Deep Learning Virtual Machine</h1>
+                        <p class="post-meta">
+                            // under                                 <a class="post-category" href="./tag/machine-learning.html">machine learning</a>
+                                <a class="post-category" href="./tag/python.html">python</a>
+                                <a class="post-category" href="./tag/aws.html">AWS</a>
+                                <a class="post-category" href="./tag/cloud-computing.html">cloud computing</a>
+                        </p>
+                </header>
+            </section>
+            <h1>DATS 6450: Cloud Computing</h1>
+<h2>Phase 1: Setting up an virtual machine for machine learning programs</h2>
+<p><em>Machine Learning Environment with AWS</em></p>
+<h3>Step 1. Launch EC2 Instance</h3>
+<ol>
+<li>
+<p>Go to http://console.aws.com and login using your AWS Credentials</p>
+</li>
+<li>
+<p>Under Compute, select EC2 to visit the EC2 Dashboard</p>
+</li>
+<li>
+<p>Select Launch Instance and create an instance with a GPU graphics card. I selected g3.8xlarge. Follow the configuration pages to setup. Add 20 GiB of storage, and make sure to select your existing key pair or create one.</p>
+</li>
+<li>
+<p>Your EC2 instance will launch after completing setup and the indicator will turn green once it is running.</p>
+</li>
+</ol>
+<h3>Step 2. Connect using terminal (MAC) or bash (Windows)</h3>
+<ol>
+<li>Launch your instance using SSH and your terminal of choice</li>
+</ol>
+<p>Example:</p>
+<div class="highlight"><pre><span></span>$ ssh -i <span class="s2">&quot;MyKeyPair.pem&quot;</span> ubuntu@ec2-18-220-90-33.us-east-2.compute.amazonaws.com
+</pre></div>
+
+
+<ol>
+<li>Run the follow commands to update and upgrade the instance</li>
+</ol>
+<div class="highlight"><pre><span></span>$ sudo apt-get update <span class="o">&amp;&amp;</span> sudo apt-get upgrade
+$ sudo apt install gcc
+</pre></div>
+
+
+<h3>Step 3. Install and Test Cuda</h3>
+<ol>
+<li>Install Nvidia Drivers using the following commands:</li>
+</ol>
+<div class="highlight"><pre><span></span>$ sudo add-apt-repository ppa:graphics-drivers/ppa
+$ sudo apt update
+$ sudo apt-get install nvidia-384
+</pre></div>
+
+
+<p>Make sure to restart your server after installing.</p>
+<ol>
+<li>Next, install Cuda. Go here for the official documentation and choose the correct installation:https://developer.nvidia.com/rdp/cudnn-download.</li>
+</ol>
+<div class="highlight"><pre><span></span>$ wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64-deb
+$ <span class="nb">cd</span> cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64-deb
+$ sudo apt-get update
+$ sudo apt-get install -y cuda
+$ sudo apt-get upgrade cuda
+</pre></div>
+
+
+<p>Make sure it works:</p>
+<div class="highlight"><pre><span></span>$ nvidia-smi
+</pre></div>
+
+
+<h3>Step 4. Install and Test cudaNN</h3>
+<p>CudaNN is a GPU-accelerated library of primitives for deep neural networks. This library provides highly tuned implementations for standard routines such as forward and backward convolution, pooling, normalization, and activation layers.</p>
+<ol>
+<li>
+<p>You must first visit https://developer.nvidia.com/rdp/cudnn-download and create a NVIDIA Developer Program account. This is necessary to download cudaNN</p>
+</li>
+<li>
+<p>An easy way to install this library is to download it from Chrome <em>inside your EC2 Instance</em>.
+Install Google Chrome using the following commands:</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span>#Add Key:
+wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>#Set repository:
+sudo sh -c &#39;echo &quot;deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main&quot; &gt;&gt; /etc/apt/sources.list.d/google-chrome.list&#39;
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>#Install package:
+sudo apt-get update
+sudo apt-get install google-chrome-stable
+</pre></div>
+
+
+<p>Test Chrome is working by running <code>google-chrome</code> in the command line.</p>
+<ol>
+<li>Next, download the Linux library for Cuda 8.0 in your newly installed Chrome browser from this website:
+https://developer.nvidia.com/rdp/cudnn-download</li>
+</ol>
+<p>You must sign in using the credentials you created in Part 1.</p>
+<ol>
+<li>After downloading completes, return to the terminal and unzip the file.</li>
+</ol>
+<div class="highlight"><pre><span></span>$ <span class="nb">cd</span> ~
+$ <span class="nb">cd</span> Downloads
+$ tar -zxf cudnn-8.0-linux-x64-v7.tgz
+</pre></div>
+
+
+<ol>
+<li>Copy the following files into the Cuda Toolkit Directory</li>
+</ol>
+<div class="highlight"><pre><span></span>$ ubuntu@ip-172-31-33-60:~/Downloads$ <span class="nb">cd</span> cuda
+$ ubuntu@ip-172-31-33-60:~/Downloads/cuda$ sudo cp lib64/* /usr/local/cuda/lib64/
+$ ubuntu@ip-172-31-33-60:~/Downloads/cuda$ sudo cp include/* /usr/local/cuda/include/
+</pre></div>
+
+
+<ol>
+<li>Test the installation:</li>
+</ol>
+<div class="highlight"><pre><span></span>cat /usr/local/cuda/include/cudnn.h | grep CUDNN_MAJOR -A 2    
+</pre></div>
+
+
+<h3>Step 5: Install Python and it's related libraries</h3>
+<ol>
+<li>Install Python 3</li>
+</ol>
+<div class="highlight"><pre><span></span>$ sudo apt-get install python3-pip
+</pre></div>
+
+
+<p>Test if Python 3 is installed: <code>python3 --version</code>.</p>
+<ol>
+<li>Install the following python libraries:</li>
+</ol>
+<div class="highlight"><pre><span></span>$ sudo pip3 install --upgrade pip
+$ sudo apt-get install python3-tk
+$ sudo pip3 install numpy
+$ sudo pip3 install seaborn
+$ sudo pip3 install pandas
+$ sudo pip3 install sklearn
+$ sudo pip3 install matplotlib
+$ sudo pip3 install keras
+$ sudo pip3 install theano
+</pre></div>
+
+
+<h3>Step 6. Install Tensorflow</h3>
+<div class="highlight"><pre><span></span>$ sudo pip3 install tensorflow
+</pre></div>
+
+
+<p>Run a short TensorFlow program to see if it's working:</p>
+<div class="highlight"><pre><span></span>vim tftest.py
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="c1"># Python</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
+<span class="n">hello</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="s1">&#39;Hello, TensorFlow!&#39;</span><span class="p">)</span>
+<span class="n">sess</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">hello</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>python3 tftest.py
+</pre></div>
+
+
+<p>The system should output the following:</p>
+<div class="highlight"><pre><span></span>Hello, TensorFlow!
+</pre></div>
+
+
+<h3>Step 7. Install Caffe</h3>
+<p>This instructions are based on this helpful resource: https://github.com/BVLC/caffe/wiki/Install-Caffe-on-EC2-from-scratch-(Ubuntu,-CUDA-7,-cuDNN-3)</p>
+<ol>
+<li>Install the dependencies with all of these installs:</li>
+</ol>
+<div class="highlight"><pre><span></span>sudo apt-get install -y libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libboost-all-dev libhdf5-serial-dev protobuf-compiler gfortran libjpeg62 libfreeimage-dev libatlas-base-dev git python-dev  libgoogle-glog-dev libbz2-dev libxml2-dev libxslt-dev libffi-dev libssl-dev libgflags-dev liblmdb-dev python-yaml
+</pre></div>
+
+
+<p>Then run:</p>
+<div class="highlight"><pre><span></span>$ sudo easy_install pillow
+</pre></div>
+
+
+<ol>
+<li>Clone Caffe.git</li>
+</ol>
+<div class="highlight"><pre><span></span>$ <span class="nb">cd</span> ~
+$ git clone https://github.com/BVLC/caffe.git
+</pre></div>
+
+
+<ol>
+<li>Cd to Caffe folder and run the follwing:</li>
+</ol>
+<div class="highlight"><pre><span></span>$ cat python/requirements.txt <span class="p">|</span> xargs -L <span class="m">1</span> sudo pip install
+</pre></div>
+
+
+<ol>
+<li>Next, copy the Makefile.config.example to create our own Makefile.config</li>
+</ol>
+<div class="highlight"><pre><span></span>$ cp Makefile.config.example Makefile.config
+$ vi Makefile.config
+</pre></div>
+
+
+<p>Uncomment the line: USE_CUDNN := 1
+Make sure the CUDA_DIR correctly points to our CUDA installation.</p>
+<ol>
+<li>Now we build Caffe. Set X to the number of CPU threads (or cores) on your machine. For me, this was 8.</li>
+</ol>
+<div class="highlight"><pre><span></span>$ sudo apt-get install htop
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>$ make pycaffe -jX
+$ make all -jX
+$ make <span class="nb">test</span> -jX
+</pre></div>
+
+
+<p>Now test Caffe:</p>
+<div class="highlight"><pre><span></span>$ ./data/mnist/get_mnist.sh
+</pre></div>
+
+
+<h3>Step 8. Install Torch</h3>
+<p>This instructions are based on this helpful resource:
+http://torch.ch/docs/getting-started.html</p>
+<p>Run the following in the terminal:</p>
+<div class="highlight"><pre><span></span>$ git clone https://github.com/torch/distro.git ~/torch --recursive
+$ <span class="nb">cd</span> ~/torch<span class="p">;</span> bash install-deps<span class="p">;</span>
+$ ./install.sh
+</pre></div>
+
+
+<p>The last command will take some time to install.</p>
+<p>Then run:</p>
+<div class="highlight"><pre><span></span>source ~/.bashrc
+</pre></div>
+
+
+<p>Test if it's working:</p>
+<div class="highlight"><pre><span></span>$ th
+</pre></div>
+
+
+<p>If successful, Torch will start:</p>
+<div class="highlight"><pre><span></span>  ______             __   |  Torch7                                   
+ /_  __/__  ________/ /   |  Scientific computing for Lua.         
+  / / / _ \/ __/ __/ _ \  |                                           
+ /_/  \___/_/  \__/_//_/  |  https://github.com/torch   
+                          |  http://torch.ch       
+</pre></div>
+
+
+<h3>Step 9. Install pycharm</h3>
+<ol>
+<li>
+<p>Run <code>google-chrome</code> to open the Chrome browser</p>
+</li>
+<li>
+<p>Navigate to https://www.jetbrains.com/pycharm/download/download-thanks.html?platform=linux&amp;code=PCC and download the Linux version of PyCharm Community</p>
+</li>
+<li>
+<p>Cd to Downloads folder in the terminal and unzip:</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span>$ <span class="nb">cd</span> ~
+$ <span class="nb">cd</span> Downloads
+$ tar -zxf pycharm-community-2017.2.tar.gz
+</pre></div>
+
+
+<ol>
+<li>To open PyCharm community:</li>
+</ol>
+<div class="highlight"><pre><span></span>$ <span class="nb">cd</span> pycharm-community-2017.2
+$ <span class="nb">cd</span> bin
+$ <span class="nb">cd</span> ./pycharm.sh
+</pre></div>
+
+
+<h3>You have now made a deep learning virtual machine! Congrats!</h3>
+            <a href="#" class="go-top">Go Top</a>
+<footer class="footer">
+    <p>&copy; Elizabeth Rychlinski &ndash;
+        Built with <a href="https://github.com/PurePelicanTheme/pure-single">Pure Theme</a>
+        for <a href="http://blog.getpelican.com/">Pelican</a>
+    </p>
+</footer>        </div>
+    </div>
+    </div>
+    <script>
+        var $top = $('.go-top');
+
+        // Show or hide the sticky footer button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $top.fadeIn(200);
+            } else {
+                $top.fadeOut(200);
+            }
+        });
+
+        // Animate the scroll to top
+        $top.click(function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop: 0}, 300);
+        })
+
+        // Makes sure that the href="#" attached to the <a> elements
+        // don't scroll you back up the page.
+        $('body').on('click', 'a[href="#"]', function(event) {
+            event.preventDefault();
+        });
+    </script>
+
+</body>
+</html>
