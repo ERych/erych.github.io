@@ -59,9 +59,8 @@
                         </p>
                 </header>
             </section>
-            <h1>Filtering Positive and Negative Headlines with APIs</h1>
-<h3>This project was completed for Cloud Computing @ George Washington University, with Daniel Anderson, Michael Arango, and Megan Foler. The full python code for this project is can be found <a href="/.html">here</a>.</h3>
-<p><img alt="Exclamation" src="https://github.com/ERych/erych.github.io/blob/master/images/Exclamation.jpg" title="Exclamation Mark"></p>
+            <h4>This project was completed for Cloud Computing @ George Washington University, with Daniel Anderson, Michael Arango, and Megan Foler. The full python code for this project is can be found <a href="/.html">here</a>.</h4>
+<p><img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/Exclamation.jpg" title="Exclamation Mark"></p>
 <h2>Introduction</h2>
 <p>The Google Natural Language API on the Google Cloud Platform (GCP) is an useful tool to analyze text. Instead of starting from scratch to build an algorithm that understands the sentiment behind a block of words, which would be a grueling task, one can call this API to take advantage of Google's already trained dataset in the cloud.</p>
 <p>In this example, we will feed the API a description from a news article, and receive a sentiment "score" that reflects how positive or negative the description is.</p>
@@ -69,6 +68,49 @@
 <p>Next, we will translate any articles not in English using the Google Translate API (also cool, also in the Google Cloud).</p>
 <p>Finally, we will select positive or negative news, based on the Natural Language analysis and visualize the results.</p>
 <h2>The News API</h2>
+<p>The <a href="https://newsapi.org/">News API</a> is a free to use API to pull live news articles from 70 international sources.</p>
+<p><img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/News.jpg" title="Screenshot from Newsapi.org"></p>
+<h3>Set Up</h3>
+<p>Using this API takes few steps to set up. You must first request a key, <a href="https://newsapi.org/register">here</a>.</p>
+<p>Then, install the <code>newsapi</code> python library with <code>pip install newsapi</code></p>
+<p>Once these steps are complete, we can make the inital call.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">newsapi</span>
+<span class="n">apikey</span> <span class="o">=</span> <span class="s1">&#39;insertkeynumber&#39;</span>
+</pre></div>
+
+
+<p><code>newsapi</code> offers two classes, <code>Articles</code> and <code>Sources</code>, that redirect to two endpoints, https://newsapi.org/v1/articles and https://newsapi.org/v1/sources, respectively.</p>
+<h3>Articles</h3>
+<div class="highlight"><pre><span></span><span class="c1">#instantiate an article object</span>
+<span class="kn">from</span> <span class="nn">newsapi.articles</span> <span class="kn">import</span> <span class="n">Articles</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">Articles</span><span class="p">(</span><span class="n">API_KEY</span><span class="o">=</span><span class="n">apikey</span><span class="p">)</span>
+<span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;bbc-news&quot;</span><span class="p">,</span> <span class="n">sort_by</span><span class="o">=</span><span class="s1">&#39;top&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>The <code>.get()</code> method takes three arguments: source (required), sort_by (optional), and attributes_format (optional Default:True). The <code>source</code> is the identifer for the news source or blog you want headlines from. The <code>sort_by</code> argument lets the user specify which type of list they want. The possible options are <em>top</em>, <em>latest</em>, and <em>popular</em>. Note: not all options are available for all sources (default: top).</p>
+<p>Some example output:</p>
+<div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;articles&#39;</span><span class="o">:</span> <span class="p">[{</span><span class="s1">&#39;author&#39;</span><span class="o">:</span> <span class="s1">&#39;BBC News&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;description&#39;</span><span class="o">:</span> <span class="s1">&#39;Five people are reported dead and 1,000 have been rescued, the US National Weather Service says.&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;publishedAt&#39;</span><span class="o">:</span> <span class="s1">&#39;2017-08-27T13:54:29Z&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;title&#39;</span><span class="o">:</span> <span class="s2">&quot;Storm Harvey: 1,000 rescued as Houston hit by &#39;catastrophic floods&#39;&quot;</span><span class="p">,</span>
+   <span class="s1">&#39;url&#39;</span><span class="o">:</span> <span class="s1">&#39;http://www.bbc.co.uk/news/world-us-canada-41067315&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;urlToImage&#39;</span><span class="o">:</span> <span class="s1">&#39;https://ichef.bbci.co.uk/images/ic/1024x576/p05dg1pb.jpg&#39;</span><span class="p">},</span>
+  <span class="p">{</span><span class="s1">&#39;author&#39;</span><span class="o">:</span> <span class="s1">&#39;BBC News&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;description&#39;</span><span class="o">:</span> <span class="s1">&#39;Rockport residents describe the moment the great storm hit their homes in Texas.&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;publishedAt&#39;</span><span class="o">:</span> <span class="s1">&#39;2017-08-27T07:08:39Z&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;title&#39;</span><span class="o">:</span> <span class="s1">&#39;Harvey: Too poor to flee the hurricane&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;url&#39;</span><span class="o">:</span> <span class="s1">&#39;http://www.bbc.co.uk/news/world-us-canada-41065335&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;urlToImage&#39;</span><span class="o">:</span> <span class="s1">&#39;https://ichef.bbci.co.uk/news/1024/cpsprodpb/B42E/production/_97562164_judy.jpg&#39;</span><span class="p">},</span>
+  <span class="p">{</span><span class="s1">&#39;author&#39;</span><span class="o">:</span> <span class="s1">&#39;BBC News&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;description&#39;</span><span class="o">:</span> <span class="s1">&#39;The sister of two terrorist suspects has condemned the attacks in Spain which left 15 people dead.&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;publishedAt&#39;</span><span class="o">:</span> <span class="s1">&#39;2017-08-26T23:48:54Z&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;title&#39;</span><span class="o">:</span> <span class="s2">&quot;Spain attacks: Suspects&#39; sister condemns violence&quot;</span><span class="p">,</span>
+   <span class="s1">&#39;url&#39;</span><span class="o">:</span> <span class="s1">&#39;http://www.bbc.co.uk/news/av/world-europe-41064715/spain-attacks-suspects-sister-condemns-violence&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;urlToImage&#39;</span><span class="o">:</span> <span class="s1">&#39;https://ichef-1.bbci.co.uk/news/1024/cpsprodpb/4728/production/_97561281_p05df89t.jpg&#39;</span><span class="p">},</span>
+</pre></div>
+
+
 <p>News API
 -set up
 -data input types
