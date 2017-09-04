@@ -59,7 +59,7 @@
                         </p>
                 </header>
             </section>
-            <p>This is a continuation of a three-part series. To go to part one, click <a href="" title="/choose-your-news-part-1-collecting-live-news-data-using-the-news-api.html">here</a>.</p>
+            <p>This is a continuation of a three-part series. To go to part one, click <a href="" title="https://erych.github.io/choose-your-news-part-1-collecting-live-news-data-using-the-news-api.html">here</a>.</p>
 <h2>Analyzing Article Sources</h2>
 <p>In the last article, we pulled metadata from the latest news headlines using the News API. Let's take a look at where the articles are coming from:</p>
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">seaborn</span>
@@ -85,14 +85,13 @@
 </pre></div>
 
 
-<p><img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/languages.JPG?raw=true&quot;"></p>
+<p><img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/languages.png?raw=true&quot;"></p>
 <p>Even though some of these countries are not primarily English-speaking, the article data is only in English and German.</p>
 <h2>Google Translate API</h2>
 <p>We are going to use the Google Translate API to translate any German-language articles captured in our News API request. In the next post, we will use the Google Natural Language API to perform sentiment and entity analysis on all of the articles.</p>
-<h2>Google Cloud Platform (GCP) Authentication</h2>
+<h3>Google Cloud Platform (GCP) Authentication</h3>
 <p>Authentication on GCP can be tricky, but these steps should guide you along the process. There are plenty on online resources if you get stuck (GCP documentation is robust and helpful).</p>
 <p>We will use a service account to use the GCP API's.</p>
-<h3>Steps to Enable Translation API:</h3>
 <ol>
 <li>Create a GCP account at https://console.cloud.google.com. If you have Google Account for gmail, you can use that.</li>
 <li>Once logged into GCP, go to the console and create/select a project.</li>
@@ -100,9 +99,6 @@
 <li>Open the console left side menu and select APIs &amp; services, and then select Library.</li>
 <li>Click the Translation API under Google Cloud Machine Learning.</li>
 <li>Click ENABLE.</li>
-</ol>
-<h3>Steps to Obtain API Credentials:</h3>
-<ol>
 <li>From the API and Services page you previously visited, click "Credentials" on the left side menu.</li>
 <li>Under "Create Credentials" select "Service account key"</li>
 <li>Create a new service account and make yourself the owner. Choose JSON for the key type.<br>
@@ -153,7 +149,40 @@
 
 <p>Output:
 <img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/translation.JPG?raw=true&quot;"></p>
-<h2>Translating articles</h2>
+<p>Great, it works!</p>
+<h2>Translating German Articles</h2>
+<p>Let's go back to where we started. There are 10 news sources in German that we should translate for our Choose Your News program.</p>
+<p>We will first extract the articles in German (where language = "de") from the DataFrame we created in the last part.
+<img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/dataframe_german.JPG?raw=true&quot;"></p>
+<div class="highlight"><pre><span></span><span class="n">german</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="n">results</span><span class="o">.</span><span class="n">language</span> <span class="o">==</span> <span class="s1">&#39;de&#39;</span><span class="p">]</span>
+<span class="n">german</span> <span class="o">=</span> <span class="n">german</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;index&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Now, we define our function to use the Translation API.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">translate</span><span class="p">(</span><span class="n">to_trans</span><span class="p">):</span>    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">to_trans</span><span class="p">)):</span>
+        <span class="n">translation</span> <span class="o">=</span> <span class="n">translate_client</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">to_trans</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">target_language</span><span class="o">=</span><span class="s1">&#39;en&#39;</span><span class="p">)</span>
+        <span class="n">to_trans</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">translation</span><span class="p">[</span><span class="s1">&#39;translatedText&#39;</span><span class="p">]</span>
+
+<span class="n">translate</span><span class="p">(</span><span class="n">german</span><span class="o">.</span><span class="n">description_x</span><span class="p">)</span>   
+<span class="n">german</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>     
+</pre></div>
+
+
+<p><img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/dataframe_german_trans.JPG?raw=true&quot;"></p>
+<p>The descriptions of the articles are in English. Great! Our translation API is working!</p>
+<p>We will now combine the translated articles with our other articles.</p>
+<div class="highlight"><pre><span></span><span class="n">english</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="n">results</span><span class="o">.</span><span class="n">language</span> <span class="o">==</span> <span class="s1">&#39;en&#39;</span><span class="p">]</span>
+<span class="n">to_combine</span> <span class="o">=</span> <span class="p">[</span><span class="n">english</span><span class="p">,</span> <span class="n">german</span><span class="p">]</span>
+<span class="n">translated</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">to_combine</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Voila!</p>
+<h2>Summary</h2>
+<p>We have now used the News API to pull in the latest news headlines and their descriptions from 70 different news sources. We then used our Google Cloud Platform account to create a service account and authenticate usage of the Translation API.</p>
+<p>We are ready for Part 3:  Using the Google Natural Language API to Analyze News Sentiment</p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Elizabeth Rychlinski &ndash;
