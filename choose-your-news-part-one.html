@@ -6,7 +6,7 @@
     <meta name="description" content="Elizabeth's Portfolio, Experiments in Data Science">
 
 
-        <title>Filtering Positive and Negative Headlines with APIs // Elizabeth's Portfolio // Experiments in Data Science</title>
+        <title>Choose Your News - Part One // Elizabeth's Portfolio // Experiments in Data Science</title>
 
 
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
@@ -50,7 +50,7 @@
         <div class="content">
             <section class="post">
                 <header class="post-header">
-                    <h1>Filtering Positive and Negative Headlines with APIs</h1>
+                    <h1>Choose Your News - Part One</h1>
                         <p class="post-meta">
                             // under                                 <a class="post-category" href="./tag/api.html">API</a>
                                 <a class="post-category" href="./tag/google.html">Google</a>
@@ -59,28 +59,34 @@
                         </p>
                 </header>
             </section>
-            <h4>This project was completed for Cloud Computing @ George Washington University, with Daniel Anderson, Michael Arango, and Megan Foler. The full python code for this project is can be found <a href="/.html">here</a>.</h4>
+            <h1>Part 1: Collecting Live News Data Using the News API</h1>
+<p>This project was completed for Cloud Computing @ George Washington University, with Daniel Anderson, Michael Arango, and Megan Foler. The full python code can be found <a href="/.html">here</a>.</p>
 <p><img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/Exclamation.jpg?raw=true&quot;"></p>
 <h2>Introduction</h2>
-<p>The Google Natural Language API on the Google Cloud Platform (GCP) is an useful tool to analyze text. Instead of starting from scratch to build an algorithm that understands the sentiment behind a block of words, which would be a grueling task, one can call this API to take advantage of Google's already trained dataset in the cloud.</p>
-<p>In this example, we will feed the API a description from a news article, and receive a sentiment "score" that reflects how positive or negative the description is.</p>
-<p>First, we will authenticate and call the News API to receive these news article descriptions.</p>
-<p>Next, we will translate any articles not in English using the Google Translate API (also cool, also in the Google Cloud).</p>
+<p>Many of us choose the news we read, with or without knowing it, whether it's by the news sources we visit, articles we click, or personalities we follow. But what about the mood of the articles we want to read, from any source? This project creates a program to provide a user the choice to receive positive or negative news, from news sources around the world.</p>
+<p>There are three parts to design this program:</p>
+<p>1) Collecting Live News Data Using the News API</p>
+<p>First, we will receive news article metadata and perform data preprocessing.</p>
+<p>2) Using the Google Translate API to Translate International News</p>
+<p>Next, we will translate any articles not in English.</p>
+<p>3) Using the Google Natural Language API to Analyze News Sentiment</p>
 <p>Finally, we will select positive or negative news, based on the Natural Language analysis and visualize the results.</p>
+<h1>Part 1 - Collecting Live News Data Using the News API</h1>
 <h2>The News API</h2>
 <p>The <a href="https://newsapi.org/">News API</a> is a free to use API to pull live news articles from 70 international sources.</p>
 <p><img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/News.JPG?raw=true"></p>
 <h3>Set Up</h3>
-<p>Using this API takes few steps to set up. You must first request a key, <a href="https://newsapi.org/register">here</a>.</p>
+<p>Using this API takes few steps to set up. We must first request a key, <a href="https://newsapi.org/register">here</a>.</p>
 <p>Then, install the <code>newsapi</code> python library with <code>pip install newsapi</code></p>
-<p>Once these steps are complete, we can make the inital call.</p>
+<p>Once those steps are complete, we can write the following to connect our new API key:</p>
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">newsapi</span>
 <span class="n">apikey</span> <span class="o">=</span> <span class="s1">&#39;insertkeynumber&#39;</span>
 </pre></div>
 
 
-<p><code>newsapi</code> offers two classes, <code>Articles</code> and <code>Sources</code>, that redirect to two endpoints, https://newsapi.org/v1/articles and https://newsapi.org/v1/sources, respectively.</p>
 <h3>Articles</h3>
+<p>The News API offers two classes, <code>Articles</code> and <code>Sources</code>, that redirect to two endpoints, https://newsapi.org/v1/articles and https://newsapi.org/v1/sources, respectively.</p>
+<p>Starting with articles, we make our first request using .get()</p>
 <div class="highlight"><pre><span></span><span class="c1">#instantiate an article object</span>
 <span class="kn">from</span> <span class="nn">newsapi.articles</span> <span class="kn">import</span> <span class="n">Articles</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">Articles</span><span class="p">(</span><span class="n">API_KEY</span><span class="o">=</span><span class="n">apikey</span><span class="p">)</span>
@@ -89,18 +95,14 @@
 
 
 <p>The <code>.get()</code> method takes three arguments: source (required), sort_by (optional), and attributes_format (optional Default:True). The <code>source</code> is the identifer for the news source or blog you want headlines from. The <code>sort_by</code> argument lets the user specify which type of list they want. The possible options are <em>top</em>, <em>latest</em>, and <em>popular</em>. Note: not all options are available for all sources (default: top).</p>
-<p>For each article request, the api returns the following:
-- <code>status</code> - If the request was successful or not. Options: ok, error. In the case of error a code and message property will be populated.
-- <code>source</code> - The identifier of the source requested.
-- <code>sortBY</code> - Which type of article list is being returned. Options: top, latest, popular.
-- <code>articles</code> - An array that contains a list of headline metadata requested. We take this array and transform it into columns for easier access.
-    - <code>author</code> - The author of the article
-    - <code>description</code> - A description or preface for the article.
-    - <code>title</code> - The headline or title of the article.
-    - <code>url</code> - The direct URL to the content page of the article.
-    - <code>urlToImage</code> - The URL to a relevant image for the article.
-    - <code>publishedAt</code> - The best attempt at finding a date for the article, in UTC (+0).<a href="https://newsapi.org">1</a></p>
-<p>A snippet of output:</p>
+<p>For each article request, the api returns:
+  <code>author</code> - The author of the article
+  <code>description</code> - A description or preface for the article.
+  <code>title</code> - The headline or title of the article.
+  <code>url</code> - The direct URL to the content page of the article.
+  <code>urlToImage</code> - The URL to a relevant image for the article.
+  <code>publishedAt</code> - The best attempt at finding a date for the article, in UTC (+0).<a href="https://newsapi.org">1</a></p>
+<p>A snippet of output for BBC News articles only. You can choose any source that you prefer:</p>
 <div class="highlight"><pre><span></span>{&#39;articles&#39;: [{&#39;author&#39;: &#39;BBC News&#39;,
    &#39;description&#39;: &#39;Five people are reported dead and 1,000 have been rescued, the US National Weather Service says.&#39;,
    &#39;publishedAt&#39;: &#39;2017-08-27T13:54:29Z&#39;,
@@ -122,6 +124,7 @@
 </pre></div>
 
 
+<h3>Data Processing</h3>
 <p>A pandas DataFrame is much easer to work with down the road, so we will convert from JSON to DataFrame using <code>pd.DataFrame.from_dict</code> and <code>.appy([pd.Series])</code>:</p>
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -131,8 +134,8 @@
 
 
 <p><img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/dataframe_news.JPG?raw=true&quot;"></p>
-<h3>Articles</h3>
-<p>Next, let's work with Articles</p>
+<h3>Sources</h3>
+<p>Next, let's work with Sources</p>
 <p>The <code>.get()</code> method for <code>Sources</code> takes three arguments: category (optional), language (optional), and country (optional).</p>
 <p>First set up the API connection</p>
 <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">newsapi.sources</span> <span class="kn">import</span> <span class="n">Sources</span>
@@ -153,20 +156,9 @@
 
 
 <p><img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/dataframe_sources.JPG?raw=true&quot;"></p>
-<p>Here we see where the articles are sourced from:</p>
-<div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="s1">&#39;country&#39;</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">sources</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="s1">&#39;Set1&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Number of News Sources&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Publication Country&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="s1">&#39;Australia&#39;</span><span class="p">,</span> <span class="s1">&#39;USA&#39;</span><span class="p">,</span> <span class="s1">&#39;UK&#39;</span><span class="p">,</span> <span class="s1">&#39;Germany&#39;</span><span class="p">,</span> <span class="s1">&#39;Italy&#39;</span><span class="p">,</span> <span class="s1">&#39;India&#39;</span><span class="p">])</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Breakdown of News Source Publication Countries&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-
-
-<p><img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/sources.png?raw=true&quot;"></p>
 <h3>Combining the News API Data</h3>
 <p>As you will see in the next post, we want both article and source information when analyzing the content of these articles.</p>
-<p>We now call all articles and transform the dataset into a DataFrame</p>
+<p>We now call all articles and transform the dataset into a DataFrame:</p>
 <div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sources</span><span class="p">)):</span>
       <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
@@ -195,7 +187,9 @@ results = results.dropna()
 
 
 <p><img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/dataframe_complete.JPG?raw=true&quot;"></p>
-<p>We will now use our <code>newsapi</code> DataFrame for translation and sentiment analysis using Google APIs. Click [here] to continue. </p>
+<h2>Conclusion</h2>
+<p>We have completed Part 1 of this project. Now, we will use our preprocessed data to perform translation and sentiment analysis.</p>
+<p>Click here to continue to Part 2: Calling the Google Translate API to Translate International News</p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Elizabeth Rychlinski &ndash;
