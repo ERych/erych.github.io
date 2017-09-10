@@ -61,7 +61,7 @@
             </section>
             <h1>Part Three: Using the Google Natural Language API to Analyze News Sentiment</h1>
 <p>This is a continuation of a three-part series. Go to: <a href="https://erych.github.io/choose-your-news-part-one-news-api.html">Part One</a> /  <a href="https://erych.github.io/choose-your-news-part-two-google-translation-api.html">Part Two</a>.</p>
-<p>We set out to create a program to provide a user the choice to receive positive or negative news, from news sources around the world. This can show us not only how some amazing open-source Machine Learning technology works, but also how our news can be manipulated using this technology.    </p>
+<p>We set out to create a program to provide a user the choice to receive positive or negative news, from news sources around the world. This can show us not only how some amazing open-source machine learning technology works, but also how our news can be manipulated using this technology.    </p>
 <p>So far, we have gathered the data using the News API, and translated article metadata from German to English using the Google Translation API.</p>
 <p>We are now onto our experiment with a third API, the Google Natural Language API (part of the Google Cloud Machine Learning library). We will use the API to score news article descriptions on a negative to positive sentiment scale.</p>
 <p>The Google Natural Language API on the Google Cloud Platform (GCP) is an useful tool to analyze text. Instead of starting from scratch to build an algorithm that understands the sentiment behind a block of words, which would be an extremely time-consuming task, one can call this API to take advantage of Google's already trained dataset, hosted in the cloud.</p>
@@ -111,7 +111,7 @@
     <span class="n">sent_list</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="c1">#iterates through the all articles capture by the News API. The datatframe is called &quot;results&quot;</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">english</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">translated</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
 
         <span class="c1">#creates a dictionary to store the data capture in the loop</span>
         <span class="n">sent_dict</span><span class="o">=</span><span class="p">{}</span>
@@ -129,7 +129,7 @@
         <span class="n">sent_dict</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">translated</span><span class="o">.</span><span class="n">title</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="n">sent_dict</span><span class="p">[</span><span class="s1">&#39;Sentiment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sentiment</span><span class="o">.</span><span class="n">score</span>
         <span class="n">sent_dict</span><span class="p">[</span><span class="s1">&#39;Magnitude&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sentiment</span><span class="o">.</span><span class="n">magnitude</span>
-        <span class="n">sent_dict</span><span class="p">[</span><span class="s1">&#39;Description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">transalted</span><span class="o">.</span><span class="n">description_x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">sent_dict</span><span class="p">[</span><span class="s1">&#39;Description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">translated</span><span class="o">.</span><span class="n">description_x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="n">sent_dict</span><span class="p">[</span><span class="s1">&#39;Category&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">translated</span><span class="o">.</span><span class="n">category</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
         <span class="c1">#Appending the values in our dictionary to a list</span>
@@ -209,6 +209,7 @@ Magnitude &lt;= - .5 → Negative Article</p>
 <h2>Conclusion</h2>
 <p>We've reached the end of our my three-part series on APIs, machine learning, and natural language processing.</p>
 <p>After our News API data was preprocessed, we created an algorithm using python. We passed each article through a function using the Google Natural Language API. We captured sentiment and magnitude using the “description” field captured in our dataset. We stored the sentiment and magnitude values, as well as other metadata about the news, in a list and printed the user's choice from the list.</p>
+<p>I hope you've learned something about the emerging machine learning technology that we all can harness.</p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Elizabeth Rychlinski &ndash;
