@@ -62,7 +62,8 @@
             <h1>Part Two: Using the Google Translate API to Translate International News</h1>
 <p>This is a continuation of a three-part series. To go to part one, click <a href="https://erych.github.io/choose-your-news-part-1-collecting-live-news-data-using-the-news-api.html">here</a>.</p>
 <h2>Analyzing Article Sources</h2>
-<p>In the last article, we pulled metadata from the latest news headlines using the News API. Let's take a look at where the articles are coming from:</p>
+<p>In the last part, we pulled metadata from the latest news headlines using the News API. In part two, we will learn how to call the Google Translation API to translate text.</p>
+<p>To start, let's take a look at where the articles we called are coming from:</p>
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">seaborn</span>
 
 <span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="s1">&#39;country&#39;</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">sources</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="s1">&#39;Set1&#39;</span><span class="p">)</span>
@@ -94,22 +95,46 @@
 <p>Authentication on GCP can be tricky, but these steps should guide you along the process. There are plenty on online resources if you get stuck (GCP documentation is robust and helpful).</p>
 <p>We will use a service account to use the GCP API's.</p>
 <ol>
-<li>Create a GCP account at <a href="https://console.cloud.google.com">https://console.cloud.google.com</a>. If you have Google Account for gmail, you can use that.</li>
-<li>Once logged into GCP, go to the console and create or select a project.</li>
-<li>You will likely need to set up a billing account. Unless you are making many frequent requests, you won't be charged for API usage.</li>
-<li>Open the console left side menu and select APIs &amp; services, and then select Library.</li>
-<li>Click the Translation API under Google Cloud Machine Learning.</li>
-<li>Click ENABLE.</li>
-<li>From the API and Services page you previously visited, click "Credentials" on the left side menu.</li>
-<li>Under "Create Credentials" select "Service account key"</li>
-<li>Create a new service account and make yourself the owner. Choose JSON for the key type.<br>
-<img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/credentials.JPG?raw=true&quot;"></li>
-<li>Click "Create" and the key will automatically download. Save this to your computer - don't lose it!</li>
+<li>
+<p>Create a GCP account at <a href="https://console.cloud.google.com">https://console.cloud.google.com</a>. If you have Google Account for gmail, you can use that.</p>
+</li>
+<li>
+<p>Once logged into GCP, go to the console and create or select a project.</p>
+</li>
+<li>
+<p>You will likely need to set up a billing account. Unless you are making many frequent requests, you won't be charged for API usage.</p>
+</li>
+<li>
+<p>Open the console left side menu and select APIs &amp; services, and then select Library.</p>
+</li>
+<li>
+<p>Click the Translation API under Google Cloud Machine Learning.</p>
+</li>
+<li>
+<p>Click ENABLE.</p>
+</li>
+<li>
+<p>From the API and Services page you previously visited, click "Credentials" on the left side menu.</p>
+</li>
+<li>
+<p>Under "Create Credentials" select "Service account key"</p>
+</li>
+<li>
+<p>Create a new service account and make yourself the owner. Choose JSON for the key type.<br>
+<img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/credentials.JPG?raw=true&quot;"></p>
+</li>
+<li>
+<p>Click "Create" and the key will automatically download. Save this to your computer - don't lose it!</p>
+</li>
 </ol>
 <h3>Making it Work in Python</h3>
 <ol>
-<li>Now that we are done in the GCP Console, we will download the GCP Client Library for Python. The documentation is <a href="https://googlecloudplatform.github.io/google-cloud-python/latest/">here</a>.</li>
-<li>I'm using Anaconda, so I use the Anaconda prompt to install the Google Translate client library.</li>
+<li>
+<p>Now that we are done in the GCP Console, we will download the GCP Client Library for Python. The documentation is <a href="https://googlecloudplatform.github.io/google-cloud-python/latest/">here</a>.</p>
+</li>
+<li>
+<p>I'm using Anaconda, so I use the Anaconda prompt to install the Google Translate client library.</p>
+</li>
 </ol>
 <div class="highlight"><pre><span></span>$ pip install --upgrade google-cloud-translate
 </pre></div>
@@ -180,8 +205,12 @@
 <p>The descriptions of the articles are in English. Great! Our translation API is working!</p>
 <p>We will now combine the translated articles with our other articles.</p>
 <div class="highlight"><pre><span></span><span class="n">english</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="n">results</span><span class="o">.</span><span class="n">language</span> <span class="o">==</span> <span class="s1">&#39;en&#39;</span><span class="p">]</span>
+
+<span class="c1">#two dataframes to combine</span>
 <span class="n">to_combine</span> <span class="o">=</span> <span class="p">[</span><span class="n">english</span><span class="p">,</span> <span class="n">german</span><span class="p">]</span>
-<span class="n">translated</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">to_combine</span><span class="p">)</span>
+
+<span class="c1">#we use ignore_index=True because we are concatenating objects where the concatenation axis does not have meaningful indexing information.</span>
+<span class="n">translated</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">to_combine</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 
 

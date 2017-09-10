@@ -60,7 +60,150 @@
                 </header>
             </section>
             <h1>Part Three: Using the Google Natural Language API to Analyze News Sentiment</h1>
-<p>The Google Natural Language API on the Google Cloud Platform (GCP) is an useful tool to analyze text. Instead of starting from scratch to build an algorithm that understands the sentiment behind a block of words, which would be an extremely time-consuming task, one can call this API to take advantage of Google's already trained dataset in the cloud.</p>
+<p>This is a continuation of a three-part series. Go to: <a href="https://erych.github.io/choose-your-news-part-1-collecting-live-news-data-using-the-news-api.html">Part One</a>, /  <a href="https://erych.github.io/choose-your-news-part-two-google-translation-api.html">Part Two</a>.</p>
+<p>We set out to create a program to provide a user the choice to receive positive or negative news, from news sources around the world. This can show us not only how some amazing open-source Machine Learning technology works, but also how our news can be manipulated using this technology.    </p>
+<p>So far, we have gathered the data using the News API, and translated article metadata from German to English using the Google Translation API.</p>
+<p>We are now onto our experiment with a third API, the Google Natural Language API (part of the Google Cloud Machine Learning library). We will use the API to score news article descriptions on a negative to positive sentiment scale.</p>
+<p>The Google Natural Language API on the Google Cloud Platform (GCP) is an useful tool to analyze text. Instead of starting from scratch to build an algorithm that understands the sentiment behind a block of words, which would be an extremely time-consuming task, one can call this API to take advantage of Google's already trained dataset, hosted in the cloud.</p>
+<h2>API Set Up</h2>
+<p>Because we already authenticated our Google Cloud account with our workstation in the previous post, we do not need to do so again. However, there are a few steps to follow to install the Natural Language API.</p>
+<ol>
+<li>
+<p>From your <a href="https://console.cloud.google.com/">Google Cloud console</a>, open the left side menu and select APIs &amp; services, and then select Library.</p>
+</li>
+<li>
+<p>Click the Natural Language API under Google Cloud Machine Learning.</p>
+</li>
+<li>
+<p>Click ENABLE.</p>
+</li>
+<li>
+<p>Open your terminal, and install the API library.</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span>$ pip install --upgrade google-cloud-natural-language
+</pre></div>
+
+
+<p>That's it, we are ready to use the API in python!</p>
+<h2>Sentiment Analysis</h2>
+<p>We are going to create a function that assigns a sentiment score to the description field associated with each news article we gathered.</p>
+<p>First, import the necessary libraries and define the client variable:</p>
+<div class="highlight"><pre><span></span><span class="c1">#Import libraries after installing the Google Language API: https://cloud.google.com/natural-language/docs/reference/libraries</span>
+
+<span class="kn">from</span> <span class="nn">google.cloud</span> <span class="kn">import</span> <span class="n">language</span>
+
+<span class="kn">from</span> <span class="nn">google.cloud.language</span> <span class="kn">import</span> <span class="n">enums</span>
+
+<span class="kn">from</span> <span class="nn">google.cloud.language</span> <span class="kn">import</span> <span class="n">types</span>
+
+<span class="c1"># define client variable</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">language</span><span class="o">.</span><span class="n">LanguageServiceClient</span><span class="p">()</span>
+</pre></div>
+
+
+<p>We will use the DataFrame that contains all description fields in English, gathered in the last part.
+<img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/dataframe_complete2.JPG?raw=true"></p>
+<p>Our first function, sentiment_list() provides us a list of dictionaries with the sentiment score and magnitude score of each article, based on the description field. We also include some other metadata from the articles.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">sentiment_list</span><span class="p">():</span>
+
+    <span class="c1">#local list, will be saved for later</span>
+    <span class="n">sent_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1">#iterates through the all articles capture by the News API. The datatframe is called &quot;results&quot;</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">english</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+
+        <span class="c1">#creates a dictionary to store the data capture in the loop</span>
+        <span class="n">sent_dict</span><span class="o">=</span><span class="p">{}</span>
+
+        <span class="c1">#uses the types.Document() function to perform analysis on the text and store it</span>
+        <span class="n">document</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">Document</span><span class="p">(</span>
+            <span class="n">content</span><span class="o">=</span><span class="n">translated</span><span class="p">[</span><span class="s1">&#39;description_x&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">enums</span><span class="o">.</span><span class="n">Document</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">PLAIN_TEXT</span><span class="p">)</span>
+
+        <span class="c1"># Detects the sentiment of the text stored above</span>
+        <span class="n">sentiment</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">analyze_sentiment</span><span class="p">(</span><span class="n">document</span><span class="o">=</span><span class="n">document</span><span class="p">)</span><span class="o">.</span><span class="n">document_sentiment</span>
+
+        <span class="c1"># Assigns dictionary values for the URL, Title, Description, Sentiment, Magnitude, and Category</span>
+        <span class="n">sent_dict</span><span class="p">[</span><span class="s1">&#39;URL&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">translated</span><span class="o">.</span><span class="n">url_x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">sent_dict</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">translated</span><span class="o">.</span><span class="n">title</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">sent_dict</span><span class="p">[</span><span class="s1">&#39;Sentiment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sentiment</span><span class="o">.</span><span class="n">score</span>
+        <span class="n">sent_dict</span><span class="p">[</span><span class="s1">&#39;Magnitude&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sentiment</span><span class="o">.</span><span class="n">magnitude</span>
+        <span class="n">sent_dict</span><span class="p">[</span><span class="s1">&#39;Description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">transalted</span><span class="o">.</span><span class="n">description_x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">sent_dict</span><span class="p">[</span><span class="s1">&#39;Category&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">translated</span><span class="o">.</span><span class="n">category</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="c1">#Appending the values in our dictionary to a list</span>
+        <span class="n">sent_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sent_dict</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">sent_list</span>
+</pre></div>
+
+
+<p>Now, let's store the sent_list that we created (we'll use it in the next function), and preview the first entry.</p>
+<div class="highlight"><pre><span></span><span class="n">sent_list</span> <span class="o">=</span> <span class="n">sentiment_list</span><span class="p">()</span>
+
+<span class="n">sent_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+
+<p><img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/sent_list.JPG?raw=true"></p>
+<h3>Sentiment and Magnitude Overview</h3>
+<p>Before we build our "Choose Your News" function with our data, I want to first review sentiment and magnitude, and the parameters we will choose for this program.</p>
+<p>Sentiment Analysis inspects the given text and identifies the prevailing emotional opinion within the text, especially to determine a writer's attitude as positive, negative, or neutral.</p>
+<p>Our model uses the following thresholds, but you can choose any:
+Sentiment &gt;= .25 → Positive Article
+Sentiment &lt;= - .25 → Negative Article</p>
+<p>Magnitude indicates the overall strength of emotion (both positive and negative) within the given text, between 0.0 and +inf</p>
+<p>Our model uses the following thresholds:
+Magnitude &gt;= .5 → Positive Article
+Magnitude &lt;= - .5 → Negative Article</p>
+<h2>Choose Your News function</h2>
+<p>We will now build our function to allow an end user to choose whether they would like to receive positive or negative news, based on the sentiment and magnitude parameters we've chosen.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">choose_news</span><span class="p">(</span><span class="n">sent_list</span><span class="p">):</span>
+
+    <span class="c1">#User selects type of articles</span>
+    <span class="n">choice</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Are you looking for positive or negative articles?  </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1">#sorts list from highest to lowest (reverse=True) for the positive articles</span>
+    <span class="k">if</span> <span class="n">choice</span> <span class="o">==</span> <span class="s1">&#39;positive&#39;</span><span class="p">:</span>
+        <span class="n">sent_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sent_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">k</span><span class="p">[</span><span class="s1">&#39;Sentiment&#39;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="c1">#sorts list from lowest to highest for the negative articles</span>
+    <span class="k">if</span> <span class="n">choice</span> <span class="o">==</span> <span class="s1">&#39;negative&#39;</span><span class="p">:</span>
+        <span class="n">sent_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sent_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">k</span><span class="p">[</span><span class="s1">&#39;Sentiment&#39;</span><span class="p">])</span>
+
+    <span class="n">i</span><span class="o">=</span><span class="mi">0</span>
+    <span class="k">for</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">sent_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">choice</span> <span class="o">==</span> <span class="s1">&#39;positive&#39;</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Here is a generally POSITIVE sentiment article:&#39;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">score</span><span class="p">[</span><span class="s1">&#39;Sentiment&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="o">.</span><span class="mi">25</span> <span class="ow">and</span>  <span class="n">score</span><span class="p">[</span><span class="s1">&#39;Magnitude&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="o">.</span><span class="mi">5</span><span class="p">):</span>
+                <span class="k">print</span> <span class="p">(</span><span class="sa">u</span><span class="s2">&quot;Title: {}</span><span class="se">\n</span><span class="s2">URL: {}</span><span class="se">\n</span><span class="s2">Description: {}</span><span class="se">\n</span><span class="s2">Sentiment: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">score</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">],</span><span class="n">score</span><span class="p">[</span><span class="s1">&#39;URL&#39;</span><span class="p">],</span><span class="n">score</span><span class="p">[</span><span class="s1">&#39;Description&#39;</span><span class="p">],</span><span class="n">score</span><span class="p">[</span><span class="s1">&#39;Sentiment&#39;</span><span class="p">]))</span>
+            <span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span>   
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">choice</span> <span class="o">==</span> <span class="s1">&#39;negative&#39;</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Here is a generally NEGATIVE sentiment article:&#39;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="c1">#sorted_list = sorted(sent_list, key=lambda k: k[&#39;Sentiment&#39;])</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">score</span><span class="p">[</span><span class="s1">&#39;Sentiment&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="o">-.</span><span class="mi">25</span> <span class="ow">and</span>  <span class="n">score</span><span class="p">[</span><span class="s1">&#39;Magnitude&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="o">.</span><span class="mi">5</span><span class="p">):</span>
+                <span class="k">print</span> <span class="p">(</span><span class="sa">u</span><span class="s2">&quot;Title: {}</span><span class="se">\n</span><span class="s2">URL: {}</span><span class="se">\n</span><span class="s2">Description: {}</span><span class="se">\n</span><span class="s2">Sentiment: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">score</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">],</span><span class="n">score</span><span class="p">[</span><span class="s1">&#39;URL&#39;</span><span class="p">],</span><span class="n">score</span><span class="p">[</span><span class="s1">&#39;Description&#39;</span><span class="p">],</span><span class="n">score</span><span class="p">[</span><span class="s1">&#39;Sentiment&#39;</span><span class="p">]))</span>
+            <span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span>   
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+                <span class="k">break</span>
+
+<span class="n">choose_news</span><span class="p">(</span><span class="n">sent_list</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Here's output of positive news:
+<img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/positive.JPG?raw=true"></p>
+<p>Here's output of negative news:
+<img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/negative.JPG?raw=true"></p>
+<p>As you can see, the positive article descriptions are generally happy, and the negative ones are generally not. It's pretty neat what's going on here: the Language API has learned what is "positive" and what is "negative", and can score a block of text using this training. You can also see one of our German articles appears in the negative news output.</p>
             <a href="#" class="go-top">Go Top</a>
 <footer class="footer">
     <p>&copy; Elizabeth Rychlinski &ndash;
