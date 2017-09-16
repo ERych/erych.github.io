@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Rych Data, Elizabeth's Experiments in Data Science">
+
+
+        <title>D3 2nd Practice // Rych Data // Elizabeth's Experiments in Data Science</title>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="./theme/css/pure.css">
+    <link rel="stylesheet" href="./theme/css/pygments.css">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
+</head>
+
+<body>
+    <div class="pure-g-r" id="layout">
+        <div class="sidebar pure-u">
+            <div class="cover-img" style="background-image: url('https://static.pexels.com/photos/205324/pexels-photo-205324.jpeg')">
+                <div class="cover-body">
+                    <header class="header">
+                        <hgroup>
+                            <h1 class="brand-main"><a href=".">Rych Data</a></h1>
+                            <p class="tagline">Elizabeth's Experiments in Data Science</p>
+                                <p class="links"><a href="/category/projects.html">View Work</a></p>
+                                <p class="social">
+                                    <a href="https://github.com/erych">
+                                        <i class="fa fa-github fa-3x"></i>
+                                    </a>
+                                    <a href="https://www.linkedin.com/in/elizabeth-rychlinski-54a50a49/">
+                                        <i class="fa fa-linkedin-square fa-3x"></i>
+                                    </a>
+                                </p>
+                        </hgroup>
+                    </header>
+                </div>
+            </div>
+        </div>
+    <div class="pure-u">
+        <div class="content">
+            <section class="post">
+                <header class="post-header">
+                    <h1>D3 2nd Practice</h1>
+                        <p class="post-meta">
+                            // under                                 <a class="post-category" href="./tag/d3.html">D3</a>
+                        </p>
+                </header>
+            </section>
+            
+<script src="http://d3js.org/d3.v3.min.js"></script>
+
+<script>
+//set up the margins
+    var margin = {top:60, right:0, bottom:70, left:400},
+        width  = 900 - margin.left - margin.right,
+        height = 700 - margin.top  - margin.bottom;
+//define svg object
+    var svg = d3.select("body")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom);
+//define chart and append g object
+    var chart = svg.append("g")
+        .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+        //when rendered, this will look like <g transform="translate(60, 30)">
+// define x variable
+    var x = d3.scale.ordinal()
+        .rangeRoundBands([0, width], .5); // the range (chart area) we want to place each bar
+// define y variable
+    var y = d3.scale.linear()
+        .range([height, 0]); //the space available in our chart
+// set  up x axis
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+// set up y axis
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left");
+// import data
+    d3.csv("/data/d3data2.csv", function(error, data){
+
+        //optionally sort data
+        data.sort(function(a,b){ return b.FemalePercent - a.FemalePercent; });
+
+        var states = data.map(function(d){ return d.MSAMD; });
+        var percent =  data.map(function(d){return d.FemalePercent;});
+        //newly created MSAMDs variable is now an array with values
+
+        //set the domains for x and y functions here
+        x.domain(states);
+        y.domain([0, d3.max(percent) ]);
+
+        chart.selectAll(".bar")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("x", function(d){ return x(d.MSAMD); })
+            .attr("y", function(d){ return y(d.FemalePercent); })
+            .attr("width", function(d){ return x.rangeBand(); }) // range band is width of bars
+            .attr("height", function(d){ return height - y(d.FemalePercent); })
+            .attr("class", "bar");
+
+
+        //setting the axes
+        svg.append("g")
+            .attr("class", "y axis")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+            .call(yAxis);
+
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(" + margin.left + "," + (height + margin.top) + ")")
+            .call(xAxis)
+            .selectAll("text")
+            .attr("transform", "translate(-10,0)rotate(-65)")
+            .style("text-anchor", "end");
+
+    });
+
+
+</script>
+&lt;pre&gt;
+&lt;code&gt;
+&lt;html&gt;
+&lt;head&gt;
+
+    &lt;title&gt;D3 2nd Practice&lt;/title&gt;
+    &lt;meta name="date" content="2017-09-16" /&gt;
+    &lt;meta name="category" content="projects" /&gt;
+    &lt;meta name="tags" content="D3"
+    &lt;meta name="summary" content="This is a chart created with D3." /&gt;
+
+    &lt;meta charset="utf-8"&gt;
+&lt;/head&gt;
+    &lt;style&gt;
+        .axis text{
+          font-family: Helvetica, Arial, sans-serif;
+          font-size: 12px;
+          text-anchor: end;
+        }
+        .axis path{
+          fill:none;
+          stroke:black;
+          stroke-width: 1.5px;
+        }
+        .bar{
+            stroke: none;
+            fill: pink;
+        }
+        .chart rect {
+            stroke: white;
+            fill-opacity: .6;
+            fill: steelblue;
+        }
+    &lt;/style&gt;
+&lt;body&gt;
+&lt;script src="http://d3js.org/d3.v3.min.js"&gt;&lt;/script&gt;
+
+&lt;script&gt;
+//set up the margins
+    var margin = {top:60, right:0, bottom:70, left:400},
+        width  = 900 - margin.left - margin.right,
+        height = 700 - margin.top  - margin.bottom;
+//define svg object
+    var svg = d3.select("body")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom);
+//define chart and append g object
+    var chart = svg.append("g")
+        .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+        //when rendered, this will look like &lt;g transform="translate(60, 30)"&gt;
+// define x variable
+    var x = d3.scale.ordinal()
+        .rangeRoundBands([0, width], .5); // the range (chart area) we want to place each bar
+// define y variable
+    var y = d3.scale.linear()
+        .range([height, 0]); //the space available in our chart
+// set  up x axis
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+// set up y axis
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left");
+// import data
+    d3.csv("/data/d3data2.csv", function(error, data){
+
+        //optionally sort data
+        data.sort(function(a,b){ return b.FemalePercent - a.FemalePercent; });
+
+        var states = data.map(function(d){ return d.MSAMD; });
+        var percent =  data.map(function(d){return d.FemalePercent;});
+        //newly created MSAMDs variable is now an array with values
+
+        //set the domains for x and y functions here
+        x.domain(states);
+        y.domain([0, d3.max(percent) ]);
+
+        chart.selectAll(".bar")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("x", function(d){ return x(d.MSAMD); })
+            .attr("y", function(d){ return y(d.FemalePercent); })
+            .attr("width", function(d){ return x.rangeBand(); }) // range band is width of bars
+            .attr("height", function(d){ return height - y(d.FemalePercent); })
+            .attr("class", "bar");
+
+
+        //setting the axes
+        svg.append("g")
+            .attr("class", "y axis")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+            .call(yAxis);
+
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(" + margin.left + "," + (height + margin.top) + ")")
+            .call(xAxis)
+            .selectAll("text")
+            .attr("transform", "translate(-10,0)rotate(-65)")
+            .style("text-anchor", "end");
+
+    });
+
+
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code>
+</pre>
+
+
+            <a href="#" class="go-top">Go Top</a>
+<footer class="footer">
+    <p>&copy; Elizabeth Rychlinski &ndash;
+        Built with <a href="https://github.com/PurePelicanTheme/pure-single">Pure Theme</a>
+        for <a href="http://blog.getpelican.com/">Pelican</a>
+    </p>
+</footer>        </div>
+    </div>
+    </div>
+    <script>
+        var $top = $('.go-top');
+
+        // Show or hide the sticky footer button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $top.fadeIn(200);
+            } else {
+                $top.fadeOut(200);
+            }
+        });
+
+        // Animate the scroll to top
+        $top.click(function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop: 0}, 300);
+        })
+
+        // Makes sure that the href="#" attached to the <a> elements
+        // don't scroll you back up the page.
+        $('body').on('click', 'a[href="#"]', function(event) {
+            event.preventDefault();
+        });
+    </script>
+
+</body>
+</html>
