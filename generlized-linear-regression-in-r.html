@@ -109,9 +109,10 @@ $(document).ready(function () {
 </div>
 
 
-<div id="introduction-to-glms" class="section level2">
-<h2>Introduction to GLMs</h2>
+<div id="a-look-at-logistic-regression" class="section level3">
+<h3>A look at Logistic Regression</h3>
 <p>This article discusses Generalized Linear Regression Models (GLMs), focusing specifically on one common example: logistic regression.</p>
+</div>
 <div id="when-to-use-glms" class="section level3">
 <h3>When to use GLMs</h3>
 <p>A generalized linear regression model is preferred over a standard linear regression model when we want to analyze a linear relationship between our independent and dependent variables but the response variable, Y, does not follow a normal distribution. This is the case when the response variable has an exponential distribution, for example, Poisson (count) or Logistic (binary) distributions.</p>
@@ -119,7 +120,7 @@ $(document).ready(function () {
 <div id="whats-a-link-function" class="section level3">
 <h3>What’s a link function?</h3>
 <p>When modeling a GLM, you will set the link function in R. The link function says how the expected value of the response relates to the linear predictor of explanatory variables.</p>
-<p>The link funciton is necesary because we are not predicting the values of <code>Y</code>, but instead describing it in terms of probabilistic model and estimating parameters of conditional distribution of <code>Y</code>given <code>X</code>.</p>
+<p>The link function is necesary because we are not predicting the values of <code>Y</code>, but instead describing it in terms of probabilistic model and estimating parameters of conditional distribution of <code>Y</code>given <code>X</code>.</p>
 </div>
 <div id="example" class="section level3">
 <h3>Example</h3>
@@ -190,8 +191,7 @@ curve(predict(model,data.frame(Weekly.study.hours=x),type=&quot;resp&quot;),col=
 </div>
 <div id="wrap-up" class="section level3">
 <h3>Wrap Up</h3>
-<p>Generalized Linear Models are an essential tool in a data scientist’s toolkit. Logistic regression is applied in all types of statistical analysis, including machine learning. Once you learn the parameters to model these models, there’s no limit to what you can explore.</p>
-</div>
+<p>Generalized Linear Models are an essential tool in a data scientist’s toolkit. Logistic regression is applied in all types of statistical analysis, including machine learning. Once you learn the parameters to model these equations, there’s no limit to what you can explore.</p>
 </div>
 
 
