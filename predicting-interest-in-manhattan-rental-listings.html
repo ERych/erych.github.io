@@ -67,7 +67,7 @@
 1. Exploring the types of apartment features that are most indicative of demand
 2. Matching availability and demand expectations between landlords/brokers and renters
 3. Identifying irregular patterns between listing information and demand</p>
-<h2>Data Overview</h2>
+<h2>Feature Engineering</h2>
 <p>Renthop provides a comprehensive set of 14 independent attributes that cover many of the key determinants of demand, such as physical location, price, bedroom/bathroom counts, etc.</p>
 <p>The dataset did not require extensive cleansing, thus, we focused on the data preprocessing on feature engineering rather than missing data and outliers. This included the creation of 14 variables <em>additional</em> variables through the following engineering:</p>
 <ul>
@@ -113,7 +113,7 @@
 
 <p><img alt="" src="https://github.com/ERych/erych.github.io/blob/master/images/FeatureImportance.png?raw=true"></p>
 <h2>Feature Extraction</h2>
-<p>Feature extraction is an approach to data compression that projects data onto a new feature space in order to show the most relevant information within the dataset. This is a valuable took to improve computational efficiency.</p>
+<p>Feature extraction is an approach to data compression that projects data onto a new feature space in order to show the most relevant information within the dataset. This is a valuable tool to improve computational efficiency.</p>
 <p>The Principal Component Analysis (unsupervised dimensionality reduction) shows that projecting the existing variables onto a smaller subspace can still be highly representative of the original data set. Eight principal components account for ~80% of explained variance.</p>
 <h2>Principal Component Analysis</h2>
 <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
