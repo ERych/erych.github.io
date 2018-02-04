@@ -64,26 +64,14 @@
 <p>We may not observe the occurance of the event for all subjects in the data. This is called censoring in survival analysis. There are various types of censoring, but the most common is right censoring. This occurs when the study reaches the end, and we do not have a direct observation of the event for one or more subjects. An example is a study measuring patient death, when the patient is still alive after the study ends.</p>
 <p>We will look at a small data set of patients on a treatment drug to see this analysis in action. The data exhibits right censoring, as can be seen in the status column. A <code>1</code> is an indiciator that something happened with the data - thus, a <code>0</code> means the event did not occur and the data is censored. We observe 12 instances of censored data, and 30 instances of non-censored data, as shown using the <code>table</code> function below. </p>
 <div class="highlight"><pre><span></span>data <span class="o">&lt;-</span> read.csv<span class="p">(</span><span class="s">&quot;data/Data4.csv&quot;</span><span class="p">)</span>
+<span class="kp">colnames</span><span class="p">(</span>data<span class="p">)</span> <span class="o">&lt;-</span> <span class="kt">c</span><span class="p">(</span><span class="s">&quot;Time&quot;</span><span class="p">,</span><span class="s">&quot;Status&quot;</span><span class="p">,</span><span class="s">&quot;Treatment&quot;</span><span class="p">)</span>
+<span class="kp">table</span><span class="p">(</span>data<span class="o">$</span>Status<span class="p">)</span>
 </pre></div>
 
 
-<div class="highlight"><pre><span></span>## Error in file(file, &quot;rt&quot;): cannot open the connection
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="kp">colnames</span><span class="p">(</span>data<span class="p">)</span> <span class="o">&lt;-</span> <span class="kt">c</span><span class="p">(</span><span class="s">&quot;Time&quot;</span><span class="p">,</span><span class="s">&quot;Status&quot;</span><span class="p">,</span><span class="s">&quot;Treatment&quot;</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="c1">## Error in `colnames&lt;-`(`*tmp*`, value = c(&quot;Time&quot;, &quot;Status&quot;, &quot;Treatment&quot;: attempt to set &#39;colnames&#39; on an object with less than two dimensions</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="kp">table</span><span class="p">(</span>data<span class="o">$</span>Status<span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>## Error in data$Status: object of type &#39;closure&#39; is not subsettable
+<div class="highlight"><pre><span></span>## 
+##  0  1 
+## 12 30
 </pre></div>
 
 
@@ -96,14 +84,7 @@
 <p>Next we fit it using the survfit function, which you'll see looks a lot like a regression function. </p>
 <p>Finally, we plot the model using a Kaplan-Meier estimate. We see from this curve the differences in likelihood of survival over time. </p>
 <div class="highlight"><pre><span></span><span class="kn">attach</span><span class="p">(</span>data<span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>## Error in attach(data): &#39;attach&#39; only works for lists, data frames and environments
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="kn">library</span><span class="p">(</span>OIsurv<span class="p">)</span> <span class="c1">#includes survival package</span>
+<span class="kn">library</span><span class="p">(</span>OIsurv<span class="p">)</span> <span class="c1">#includes survival package</span>
 </pre></div>
 
 
