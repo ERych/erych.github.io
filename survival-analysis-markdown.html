@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Rych Data, Elizabeth's Experiments in Data Science">
+
+
+        <title>survival analysis markdown // Rych Data // Elizabeth's Experiments in Data Science</title>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="./theme/css/pure.css">
+    <link rel="stylesheet" href="./theme/css/pygments.css">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
+</head>
+
+<body>
+    <div class="pure-g-r" id="layout">
+        <div class="sidebar pure-u">
+            <div class="cover-img" style="background-image: url('https://static.pexels.com/photos/205324/pexels-photo-205324.jpeg')">
+                <div class="cover-body">
+                    <header class="header">
+                        <hgroup>
+                            <h1 class="brand-main"><a href=".">Rych Data</a></h1>
+                            <p class="tagline">Elizabeth's Experiments in Data Science</p>
+                                <p class="links"><a href="/pages/about-rych-data.html">About</a></p>
+                                <p class="social">
+                                    <a href="https://github.com/erych">
+                                        <i class="fa fa-github fa-3x"></i>
+                                    </a>
+                                    <a href="https://www.linkedin.com/in/elizabeth-rychlinski-54a50a49/">
+                                        <i class="fa fa-linkedin-square fa-3x"></i>
+                                    </a>
+                                </p>
+                        </hgroup>
+                    </header>
+                </div>
+            </div>
+        </div>
+    <div class="pure-u">
+        <div class="content">
+            <section class="post">
+                <header class="post-header">
+                    <h1>survival analysis markdown</h1>
+                        <p class="post-meta">
+                            // under                         </p>
+                </header>
+            </section>
+            <hr>
+<h3>Quick Look: Survival Analysis</h3>
+<p>Surival analysis is a type of statistical analysis that studies how long something will persist, and it often considers how different covariates impact the survival rate. </p>
+<p>Common applications of survival analysis are in clinical and epidemiological studies, where the researcher is studying the time someone or something remains in the study. This could be time until tumor recurrence, or time until death once entering the clinical study.</p>
+<p>Survival analysis doesn't have to be medical in nature. For example, you could use survival analysis to study the time it takes for a machine to stop working. </p>
+<h3>Censoring in Survival Analysis</h3>
+<p>We may not observe the occurance of the event for all subjects in the data. This is called censoring in survival analysis. There are various types of censoring, but the most common is right censoring. This occurs when the study reaches the end, and we do not have a direct observation of the event for one or more subjects. An example is a study measuring patient death, when the patient is still alive after the study ends.</p>
+<p>We will look at a small data set of patients on a treatment drug to see this analysis in action. The data exhibits right censoring, as can be seen in the status column. A <code>1</code> is an indiciator that something happened with the data - thus, a <code>0</code> means the event did not occur and the data is censored. We observe 12 instances of censored data, and 30 instances of non-censored data, as shown using the <code>table</code> function below. </p>
+<div class="highlight"><pre><span></span>data <span class="o">&lt;-</span> read.csv<span class="p">(</span><span class="s">&quot;data/Data4.csv&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>## Error in file(file, &quot;rt&quot;): cannot open the connection
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="kp">colnames</span><span class="p">(</span>data<span class="p">)</span> <span class="o">&lt;-</span> <span class="kt">c</span><span class="p">(</span><span class="s">&quot;Time&quot;</span><span class="p">,</span><span class="s">&quot;Status&quot;</span><span class="p">,</span><span class="s">&quot;Treatment&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="c1">## Error in `colnames&lt;-`(`*tmp*`, value = c(&quot;Time&quot;, &quot;Status&quot;, &quot;Treatment&quot;: attempt to set &#39;colnames&#39; on an object with less than two dimensions</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="kp">table</span><span class="p">(</span>data<span class="o">$</span>Status<span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>## Error in data$Status: object of type &#39;closure&#39; is not subsettable
+</pre></div>
+
+
+<h3>The Survival Function</h3>
+<p>There are two functions that we can estimate. The first, and what we look at in this post, is the Survival function. Not surprisingly,this function provides the probability of surviving and not experiencing the event. </p>
+<p>The other is the Hazard function. This looks at the potential the event will occur if the subject has still survived up to a certain time. </p>
+<p>We will use the OIsurv R library, which contains the survival package. Functions in the survival packages apply methods to Surv objects, which are created by the Surv() function.</p>
+<h3>Modeling in R</h3>
+<p>First, we will create a Surv() object </p>
+<p>Next we fit it using the survfit function, which you'll see looks a lot like a regression function. </p>
+<p>Finally, we plot the model using a Kaplan-Meier estimate. We see from this curve the differences in likelihood of survival over time. </p>
+<div class="highlight"><pre><span></span><span class="kn">attach</span><span class="p">(</span>data<span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>## Error in attach(data): &#39;attach&#39; only works for lists, data frames and environments
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="kn">library</span><span class="p">(</span>OIsurv<span class="p">)</span> <span class="c1">#includes survival package</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>## Error in library(OIsurv): there is no package called &#39;OIsurv&#39;
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>recsurv <span class="o">&lt;-</span> Surv<span class="p">(</span>Time<span class="p">,</span> Status<span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>## Error in Surv(Time, Status): could not find function &quot;Surv&quot;
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>fit <span class="o">&lt;-</span> survfit<span class="p">(</span>recsurv<span class="o">~</span>Treatment<span class="p">,</span> data <span class="o">=</span> data<span class="p">,</span> conf.int <span class="o">=</span> <span class="m">.95</span><span class="p">,</span> conf.type <span class="o">=</span> <span class="s">&quot;log&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>## Error in survfit(recsurv ~ Treatment, data = data, conf.int = 0.95, conf.type = &quot;log&quot;): could not find function &quot;survfit&quot;
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>plot<span class="p">(</span>fit<span class="p">,</span> main <span class="o">=</span> <span class="s">&quot;Survival function (Kaplan-Meier estimate)&quot;</span><span class="p">,</span> xlab<span class="o">=</span><span class="s">&quot;Weeks&quot;</span><span class="p">,</span> ylab<span class="o">=</span><span class="s">&quot;Survival Probability&quot;</span><span class="p">,</span> col<span class="o">=</span><span class="kt">c</span><span class="p">(</span><span class="s">&quot;red&quot;</span><span class="p">,</span><span class="s">&quot;blue&quot;</span><span class="p">),</span> lwd<span class="o">=</span><span class="m">3</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>## Error in plot(fit, main = &quot;Survival function (Kaplan-Meier estimate)&quot;, : object &#39;fit&#39; not found
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>legend<span class="p">(</span>x<span class="o">=</span><span class="s">&quot;topright&quot;</span><span class="p">,</span> col<span class="o">=</span><span class="kt">c</span><span class="p">(</span><span class="s">&quot;red&quot;</span><span class="p">,</span><span class="s">&quot;blue&quot;</span><span class="p">),</span> lwd<span class="o">=</span><span class="m">3</span><span class="p">,</span> 
+       legend<span class="o">=</span><span class="kt">c</span><span class="p">(</span><span class="s">&quot;Control&quot;</span><span class="p">,</span><span class="s">&quot;Treatment&quot;</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>## Error in strwidth(legend, units = &quot;user&quot;, cex = cex, font = text.font): plot.new has not been called yet
+</pre></div>
+
+
+<p>This shows that those in the treatment group were more likely to surive during the time period studied, as the curve is higher than the control group. </p>
+<h3>Are the curves significantly different?</h3>
+<p>We perform a Logrank test using <code>survdiff</code> from the R <code>survival</code> package to test if the Control and Treatment groups are significantly different from one another. </p>
+<div class="highlight"><pre><span></span>sigtest <span class="o">&lt;-</span> survdiff<span class="p">(</span>Surv<span class="p">(</span>Time<span class="p">,</span> Status<span class="p">)</span><span class="o">~</span>Treatment<span class="p">,</span> data <span class="o">=</span> data<span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>## Error in survdiff(Surv(Time, Status) ~ Treatment, data = data): could not find function &quot;survdiff&quot;
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>sigtest
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>## Error in eval(expr, envir, enclos): object &#39;sigtest&#39; not found
+</pre></div>
+
+
+<p>We see from these results that the curves are significantly different. Our p-value is 0.0000417, so we can reject the null hypothesis that the curves are not different at the highest confidence level.  </p>
+            <a href="#" class="go-top">Go Top</a>
+<footer class="footer">
+    <p>&copy; Elizabeth Rychlinski &ndash;
+        Built with <a href="https://github.com/PurePelicanTheme/pure-single">Pure Theme</a>
+        for <a href="http://blog.getpelican.com/">Pelican</a>
+    </p>
+</footer>        </div>
+    </div>
+    </div>
+    <script>
+        var $top = $('.go-top');
+
+        // Show or hide the sticky footer button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $top.fadeIn(200);
+            } else {
+                $top.fadeOut(200);
+            }
+        });
+
+        // Animate the scroll to top
+        $top.click(function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop: 0}, 300);
+        })
+
+        // Makes sure that the href="#" attached to the <a> elements
+        // don't scroll you back up the page.
+        $('body').on('click', 'a[href="#"]', function(event) {
+            event.preventDefault();
+        });
+    </script>
+
+</body>
+</html>
